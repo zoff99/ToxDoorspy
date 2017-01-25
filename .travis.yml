@@ -1,6 +1,7 @@
 language: c
 cache: false
 sudo: true
+dist: trusty
 
 addons:
   apt:
