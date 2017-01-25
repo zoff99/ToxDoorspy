@@ -19,7 +19,7 @@ addons:
 
 script:
     - sudo apt-get update
-    - sudo add-apt-repository ppa:ubuntu-sdk-team/ppa
+    #- sudo add-apt-repository ppa:ubuntu-sdk-team/ppa
     - sudo apt-get update
     - sudo apt-get install cmake
     - aptitude search 4l|grep -i convert ; echo exit 0
