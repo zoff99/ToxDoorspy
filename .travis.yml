@@ -16,18 +16,25 @@ script:
     - clang --version ; echo exit 0
 
     ### submodules ----------------
-    - git submodule add https://github.com/TokTok/c-toxcore c-toxcore
+    - git submodule add --force https://github.com/TokTok/c-toxcore c-toxcore ; echo ok
+    - git submodule add --force https://github.com/jedisct1/libsodium libsodium ; echo ok
+    - git submodule init ; git submodule update ; echo ok
+    - pwd
     - cd c-toxcore/ ; git checkout a096c71db867ac83fc3e01e0fbe98573d20f9286
-    - git submodule add https://github.com/jedisct1/libsodium libsodium
+    - pwd
+    - cd ..
+    - pwd
     - cd libsodium/ ; git checkout tags/1.0.11
+    - cd ..
     ### submodules ----------------
 
     ### ------- compile and install libsodium -------
     - cd libsodium/ ; ./autogen.sh
-    - cd libsodium/ ; ./configure && make check
-    - cd libsodium/ ; sudo bash -c "printf 'y\naa\n\n' | checkinstall --install --pkgname libsodium --pkgversion 1.0.0 --nodoc --deldesc=no --pkglicense='GPL2'"
-    - cd libsodium/ ; sudo ldconfig
-    - cd c-toxcore ; sudo ldconfig -v 2>/dev/null | grep sodium
+    - ./configure && make check
+    - sudo bash -c "printf 'y\naa\n\n' | checkinstall --install --pkgname libsodium --pkgversion 1.0.0 --nodoc --deldesc=no --pkglicense='GPL2'"
+    - sudo ldconfig
+    - sudo ldconfig -v 2>/dev/null | grep sodium
+    - cd ..
     ### ------- compile and install libsodium -------
 
     ### ------------ compile and install c-toxcore ------------
