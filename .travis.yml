@@ -24,7 +24,6 @@ script:
     - aptitude search 4l|grep -i convert ; echo exit 0
     - aptitude search 4l|grep -i v4l ; echo exit 0
     - sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libv4lconvert0 libv4l-dev
-    #- sudo apt-get install libopus-dev # not libopus-dev on travis :-(
     - sudo apt-get install libvpx-dev
     - sudo apt-get install pkg-config
     - sudo apt-get install linux-generic
