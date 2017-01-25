@@ -19,7 +19,6 @@ addons:
 
 script:
     - sudo apt-get update
-    - sudo apt-get update
     - sudo apt-get install cmake
     - aptitude search 4l|grep -i convert ; echo exit 0
     - aptitude search 4l|grep -i v4l ; echo exit 0
