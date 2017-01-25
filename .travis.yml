@@ -19,13 +19,12 @@ addons:
 
 script:
     - sudo apt-get update
-    #- sudo add-apt-repository ppa:ubuntu-sdk-team/ppa
     - sudo apt-get update
     - sudo apt-get install cmake
     - aptitude search 4l|grep -i convert ; echo exit 0
     - aptitude search 4l|grep -i v4l ; echo exit 0
     - sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libv4lconvert0 libv4l-dev
-    - sudo apt-get install libopus-dev
+    #- sudo apt-get install libopus-dev # not libopus-dev on travis :-(
     - sudo apt-get install libvpx-dev
     - sudo apt-get install pkg-config
     - sudo apt-get install linux-generic
@@ -47,16 +46,30 @@ script:
     ### ------- compile and install libsodium -------
     - cd libsodium/ ; ./autogen.sh
     - ./configure && make check
-    - sudo bash -c "printf 'y\naa\n\n' | checkinstall --install --pkgname libsodium --pkgversion 1.0.0 --nodoc --deldesc=no --pkglicense='GPL2'"
+    - sudo bash -c "printf 'y\naa\n\n' | checkinstall --install --pkgname libsodium --pkgversion 1.0.11 --nodoc --deldesc=no --pkglicense='GPL2'"
     - sudo ldconfig
     - sudo ldconfig -v 2>/dev/null | grep sodium
     - cd ..
     ### ------- compile and install libsodium -------
 
+    ### ------- compile and install libopus -------
+    - wget http://downloads.xiph.org/releases/opus/opus-1.1.3.tar.gz -O opus.tgz
+    - tar -xzvf opus.tgz
+    - ls -al
+    - move opus* libopus
+    - cd libopus/ ; ./autogen.sh
+    - ./configure && make check
+    - sudo bash -c "printf 'y\naa\n\n' | checkinstall --install --pkgname libopus --pkgversion 1.1.3 --nodoc --deldesc=no --pkglicense='GPL2'"
+    - sudo ldconfig
+    - sudo ldconfig -v 2>/dev/null | grep opus
+    - cd ..
+    ### ------- compile and install libopus -------
+
     ### ------------ compile and install c-toxcore ------------
     - cd c-toxcore ; cmake -DWARNINGS=OFF .
     - make
-    - sudo make install
+    #- sudo make install
+    - sudo bash -c "printf 'y\naa\n\n' | checkinstall --install --pkgname toxcore --pkgversion 0.1.2 --nodoc --deldesc=no --pkglicense='GPL2'"
     - sudo ldconfig -v 2>/dev/null | grep toxcore
     ### ------------ run tests
     #- make test ARGS="-V" ; ex1=$? ; if [ $ex1 -ne 0 ]; then sleep 60; make test ARGS="-V" ; exit $? ; fi
