@@ -1,0 +1,46 @@
+language: c
+cache: false
+sudo: true
+
+script:
+    - sudo apt-get update
+    - sudo apt-get install cmake
+    - aptitude search 4l|grep -i convert ; exit 0
+    - aptitude search 4l|grep -i v4l ; exit 0
+    - sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libv4lconvert0 libv4l-dev
+    - sudo apt-get install libopus-dev libvpx-dev pkg-config
+    - sudo apt-get install linux-generic
+    - sudo bash -c "echo '::1             localhost ipv6-localhost ipv6-loopback' >> /etc/hosts" # ipv6 localhost entry
+
+    - gcc --version ; exit 0
+    - clang --version ; exit 0
+
+    ### submodules ----------------
+    - git submodule add https://github.com/TokTok/c-toxcore c-toxcore
+    - cd c-toxcore/ ; git checkout a096c71db867ac83fc3e01e0fbe98573d20f9286
+    - git submodule add https://github.com/jedisct1/libsodium libsodium
+    - cd libsodium/ ; git checkout tags/1.0.11
+    ### submodules ----------------
+
+    ### ------- compile and install libsodium -------
+    - cd libsodium/ ; ./autogen.sh
+    - cd libsodium/ ; ./configure && make check
+    - cd libsodium/ ; sudo bash -c "printf 'y\naa\n\n' | checkinstall --install --pkgname libsodium --pkgversion 1.0.0 --nodoc --deldesc=no --pkglicense='GPL2'"
+    - cd libsodium/ ; sudo ldconfig
+    - cd c-toxcore ; sudo ldconfig -v 2>/dev/null | grep sodium
+    ### ------- compile and install libsodium -------
+
+    ### ------------ compile and install c-toxcore ------------
+    - cd c-toxcore ; cmake -DWARNINGS=OFF .
+    - cd c-toxcore ; make
+    - cd c-toxcore ; sudo make install
+    - cd c-toxcore ; sudo ldconfig -v 2>/dev/null | grep toxcore
+    ### ------------ run tests
+    - cd c-toxcore ; make test ARGS="-V" ; ex1=$? ; if [ $ex1 -ne 0 ]; then sleep 60; make test ARGS="-V" ; exit $? ; fi
+    ### ------------ compile and install c-toxcore ------------
+
+    - cd toxdoorspy ; gcc -O2 -fPIC -Wall -Wextra -Wpedantic -o toxdoorspy toxdoorspy.c -std=gnu99 -lsodium -I/usr/local/include/ -ltoxcore -ltoxav -lpthread -lvpx -lv4lconvert
+    - cd toxdoorspy ; ldd toxdoorspy ; exit 0
+    - find / -name '*libjpeg*' 2> /dev/null ; exit 0
+    - cd toxdoorspy ; gcc -O2 -Wall -Wextra -Wpedantic -o toxdoorspy_static toxdoorspy.c -static -std=gnu99 -L/usr/local/lib -I/usr/local/include/ -lsodium -ltoxcore -ltoxav -ltoxgroup -ltoxmessenger -ltoxfriends -ltoxnetcrypto -ltoxdht -ltoxnetwork -ltoxcrypto -lsodium -lpthread -static-libgcc -static-libstdc++ -lopus -lvpx -lm -lpthread -lv4lconvert -ljpeg -lm -lrt
+    - cd toxdoorspy ; ls -al toxdoorspy toxdoorspy_static
