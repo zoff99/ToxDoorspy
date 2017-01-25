@@ -7,12 +7,12 @@
  *
  *
  * compile on linux (dynamic):
- *  gcc -O2 -fPIC -Wall -Wextra -Wpedantic -o echo_bot echo_bot.c -std=gnu99 -lsodium -I/usr/local/include/ -ltoxcore -ltoxav -lpthread -lvpx -lv4lconvert
+ *  gcc -O2 -fPIC -Wall -Wextra -Wpedantic -o toxdoorspy toxdoorspy.c -std=gnu99 -lsodium -I/usr/local/include/ -ltoxcore -ltoxav -lpthread -lvpx -lv4lconvert
  * compile for debugging (dynamic):
- *  gcc -O0 -g -fPIC -Wall -Wextra -Wpedantic -o echo_bot echo_bot.c -std=gnu99 -lsodium -I/usr/local/include/ -ltoxcore -ltoxav -lpthread -lvpx -lv4lconvert
+ *  gcc -O0 -g -fPIC -Wall -Wextra -Wpedantic -o toxdoorspy toxdoorspy.c -std=gnu99 -lsodium -I/usr/local/include/ -ltoxcore -ltoxav -lpthread -lvpx -lv4lconvert
  *
  * compile on linux (static):
- *  gcc -O2 -Wall -Wextra -Wpedantic -o echo_bot_static echo_bot.c -static -std=gnu99 -L/usr/local/lib -I/usr/local/include/ \
+ *  gcc -O2 -Wall -Wextra -Wpedantic -o toxdoorspy_static toxdoorspy.c -static -std=gnu99 -L/usr/local/lib -I/usr/local/include/ \
     -lsodium -ltoxcore -ltoxav -ltoxgroup -ltoxmessenger -ltoxfriends -ltoxnetcrypto \
     -ltoxdht -ltoxnetwork -ltoxcrypto -lsodium -lpthread -static-libgcc -static-libstdc++ \
     -lopus -lvpx -lm -lpthread -lv4lconvert
@@ -73,8 +73,8 @@ static struct v4lconvert_data *v4lconvert_data;
 // ----------- version -----------
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 99
-#define VERSION_PATCH 5
-static const char global_version_string[] = "0.99.5";
+#define VERSION_PATCH 6
+static const char global_version_string[] = "0.99.6";
 // ----------- version -----------
 // ----------- version -----------
 
@@ -241,7 +241,7 @@ void resume_resumable_fts(Tox *m, uint32_t friendnum);
 
 const char *savedata_filename = "savedata.tox";
 const char *savedata_tmp_filename = "savedata.tox.tmp";
-const char *log_filename = "echobot.log";
+const char *log_filename = "toxdoorspy.log";
 const char *my_avatar_filename = "avatar.png";
 const char *motion_pics_dir = "./m/";
 const char *motion_pics_work_dir = "./work/";
