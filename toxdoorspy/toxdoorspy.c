@@ -43,6 +43,7 @@ ffmpeg_avcodec_log: Using AVStream.codeco pass codec parameters to muxers is dep
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <getopt.h>
 #include <fcntl.h>
 #include <assert.h>
 #include <errno.h>
@@ -249,7 +250,7 @@ const char *motion_capture_file_extension = ".jpg";
 const char *motion_capture_file_extension_mov = ".avi";
 const char *file_extension_archive = ".zip";
 
-const char *v4l2_device = "/dev/video2";
+char *v4l2_device; // video device filename
 
 const char *shell_cmd__single_shot = "/home/pi/inst_/single_shot.sh 2> /dev/null";
 const char *shell_cmd__get_cpu_temp = "/home/pi/inst_/get_cpu_temp.sh 2> /dev/null";
@@ -3561,7 +3562,7 @@ void sigint_handler(int signo)
     }
 }
 
-int main()
+int main(int argc, char *argv[])
 {
 	global_want_restart = 0;
 	global_video_active = 0;
@@ -3573,7 +3574,89 @@ int main()
     logfile = fopen(log_filename, "wb");
     setvbuf(logfile, NULL, _IONBF, 0);
 
-    Tox *tox = create_tox();
+	
+	
+	
+	
+	
+  v4l2_device = malloc(400);
+  snprintf(v4l2_device, 399, "%s", "/dev/video1");
+
+  int aflag = 0;
+  char *cvalue = NULL;
+  int index;
+  int opt;
+
+   const char     *short_opt = "hvd:";
+   struct option   long_opt[] =
+   {
+      {"help",          no_argument,       NULL, 'h'},
+      {"version",       no_argument,       NULL, 'v'},
+      {"videodevice",   required_argument, NULL, 'd'},
+      {NULL,            0,                 NULL, 0  }
+   };
+
+  while((opt = getopt_long(argc, argv, short_opt, long_opt, NULL)) != -1)
+  {
+    switch (opt)
+      {
+      case -1:       /* no more arguments */
+      case 0:        /* long options toggles */
+        break;
+      case 'a':
+        aflag = 1;
+        break;
+      case 'd':
+        snprintf(v4l2_device, 399, "%s", optarg);
+        printf("Using Videodevice: %s\n", v4l2_device);
+        dbg(3, "Using Videodevice: %s\n", v4l2_device);
+        break;
+      case 'v':
+         printf("DoorSpy version: %s\n", global_version_string);
+            if (logfile)
+            {
+                fclose(logfile);
+                logfile = NULL;
+            }
+         return(0);
+        break;
+
+      case 'h':
+         printf("Usage: %s [OPTIONS]\n", argv[0]);
+         printf("  -v, --videodevice devicefile         file\n");
+         printf("  -h, --help                           print this help and exit\n");
+         printf("\n");
+            if (logfile)
+            {
+                fclose(logfile);
+                logfile = NULL;
+            }
+         return(0);
+
+      case ':':
+      case '?':
+         fprintf(stderr, "Try `%s --help' for more information.\n", argv[0]);
+            if (logfile)
+            {
+                fclose(logfile);
+                logfile = NULL;
+            }
+         return(-2);
+
+      default:
+         fprintf(stderr, "%s: invalid option -- %c\n", argv[0], opt);
+         fprintf(stderr, "Try `%s --help' for more information.\n", argv[0]);
+            if (logfile)
+            {
+                fclose(logfile);
+                logfile = NULL;
+            }
+         return(-2);
+      }
+  }
+
+
+	Tox *tox = create_tox();
 	global_start_time = time(NULL);
 
     // create motion-capture-dir of not already there
