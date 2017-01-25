@@ -5,15 +5,15 @@ sudo: true
 script:
     - sudo apt-get update
     - sudo apt-get install cmake
-    - aptitude search 4l|grep -i convert ; exit 0
-    - aptitude search 4l|grep -i v4l ; exit 0
+    - aptitude search 4l|grep -i convert ; echo exit 0
+    - aptitude search 4l|grep -i v4l ; echo exit 0
     - sudo apt-get install build-essential libtool autotools-dev automake checkinstall check git yasm libv4lconvert0 libv4l-dev
     - sudo apt-get install libopus-dev libvpx-dev pkg-config
     - sudo apt-get install linux-generic
     - sudo bash -c "echo '::1             localhost ipv6-localhost ipv6-loopback' >> /etc/hosts" # ipv6 localhost entry
 
-    - gcc --version ; exit 0
-    - clang --version ; exit 0
+    - gcc --version ; echo exit 0
+    - clang --version ; echo exit 0
 
     ### submodules ----------------
     - git submodule add https://github.com/TokTok/c-toxcore c-toxcore
@@ -40,7 +40,7 @@ script:
     ### ------------ compile and install c-toxcore ------------
 
     - cd toxdoorspy ; gcc -O2 -fPIC -Wall -Wextra -Wpedantic -o toxdoorspy toxdoorspy.c -std=gnu99 -lsodium -I/usr/local/include/ -ltoxcore -ltoxav -lpthread -lvpx -lv4lconvert
-    - cd toxdoorspy ; ldd toxdoorspy ; exit 0
-    - find / -name '*libjpeg*' 2> /dev/null ; exit 0
+    - cd toxdoorspy ; ldd toxdoorspy ; echo exit 0
+    - find / -name '*libjpeg*' 2> /dev/null ; echo exit 0
     - cd toxdoorspy ; gcc -O2 -Wall -Wextra -Wpedantic -o toxdoorspy_static toxdoorspy.c -static -std=gnu99 -L/usr/local/lib -I/usr/local/include/ -lsodium -ltoxcore -ltoxav -ltoxgroup -ltoxmessenger -ltoxfriends -ltoxnetcrypto -ltoxdht -ltoxnetwork -ltoxcrypto -lsodium -lpthread -static-libgcc -static-libstdc++ -lopus -lvpx -lm -lpthread -lv4lconvert -ljpeg -lm -lrt
     - cd toxdoorspy ; ls -al toxdoorspy toxdoorspy_static
