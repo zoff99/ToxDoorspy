@@ -56,7 +56,7 @@ script:
     - tar -xzvf opus.tgz
     - rm opus.tgz
     - ls -al
-    - mv -v s* libopus
+    - mv -v opus* libopus
     - cd libopus/ ; ./autogen.sh
     - ./configure && make check
     - sudo bash -c "printf 'y\naa\n\n' | checkinstall --install --pkgname libopus --pkgversion 1.1.3 --nodoc --deldesc=no --pkglicense='GPL2'"
