@@ -2,6 +2,21 @@ language: c
 cache: false
 sudo: true
 
+addons:
+  apt:
+    sources:
+      - avsm
+    packages:
+      - check
+      - libcv-dev             # For av_test.
+      - libhighgui-dev        # For av_test.
+      - libopencv-contrib-dev # For av_test.
+      - libsndfile1-dev       # For av_test.
+      - libvpx-dev
+      - opam                  # For apidsl and Frama-C.
+      - portaudio19-dev       # For av_test.
+      - texinfo               # For libconfig.
+
 script:
     - sudo apt-get update
     - sudo add-apt-repository ppa:ubuntu-sdk-team/ppa
