@@ -19,11 +19,8 @@ script:
     - git submodule add --force https://github.com/TokTok/c-toxcore c-toxcore ; echo ok
     - git submodule add --force https://github.com/jedisct1/libsodium libsodium ; echo ok
     - git submodule init ; git submodule update ; echo ok
-    - pwd
     - cd c-toxcore/ ; git checkout a096c71db867ac83fc3e01e0fbe98573d20f9286
-    - pwd
     - cd ..
-    - pwd
     - cd libsodium/ ; git checkout tags/1.0.11
     - cd ..
     ### submodules ----------------
@@ -39,15 +36,17 @@ script:
 
     ### ------------ compile and install c-toxcore ------------
     - cd c-toxcore ; cmake -DWARNINGS=OFF .
-    - cd c-toxcore ; make
-    - cd c-toxcore ; sudo make install
-    - cd c-toxcore ; sudo ldconfig -v 2>/dev/null | grep toxcore
+    - make
+    - sudo make install
+    - sudo ldconfig -v 2>/dev/null | grep toxcore
     ### ------------ run tests
-    - cd c-toxcore ; make test ARGS="-V" ; ex1=$? ; if [ $ex1 -ne 0 ]; then sleep 60; make test ARGS="-V" ; exit $? ; fi
+    - make test ARGS="-V" ; ex1=$? ; if [ $ex1 -ne 0 ]; then sleep 60; make test ARGS="-V" ; exit $? ; fi
+    - cd ..
     ### ------------ compile and install c-toxcore ------------
 
     - cd toxdoorspy ; gcc -O2 -fPIC -Wall -Wextra -Wpedantic -o toxdoorspy toxdoorspy.c -std=gnu99 -lsodium -I/usr/local/include/ -ltoxcore -ltoxav -lpthread -lvpx -lv4lconvert
-    - cd toxdoorspy ; ldd toxdoorspy ; echo exit 0
+    - ldd toxdoorspy ; echo exit 0
     - find / -name '*libjpeg*' 2> /dev/null ; echo exit 0
-    - cd toxdoorspy ; gcc -O2 -Wall -Wextra -Wpedantic -o toxdoorspy_static toxdoorspy.c -static -std=gnu99 -L/usr/local/lib -I/usr/local/include/ -lsodium -ltoxcore -ltoxav -ltoxgroup -ltoxmessenger -ltoxfriends -ltoxnetcrypto -ltoxdht -ltoxnetwork -ltoxcrypto -lsodium -lpthread -static-libgcc -static-libstdc++ -lopus -lvpx -lm -lpthread -lv4lconvert -ljpeg -lm -lrt
-    - cd toxdoorspy ; ls -al toxdoorspy toxdoorspy_static
+    - gcc -O2 -Wall -Wextra -Wpedantic -o toxdoorspy_static toxdoorspy.c -static -std=gnu99 -L/usr/local/lib -I/usr/local/include/ -lsodium -ltoxcore -ltoxav -ltoxgroup -ltoxmessenger -ltoxfriends -ltoxnetcrypto -ltoxdht -ltoxnetwork -ltoxcrypto -lsodium -lpthread -static-libgcc -static-libstdc++ -lopus -lvpx -lm -lpthread -lv4lconvert -ljpeg -lm -lrt
+    - ls -al toxdoorspy toxdoorspy_static
+
