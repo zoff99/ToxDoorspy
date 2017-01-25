@@ -17,6 +17,13 @@ dependencies:
     - gcc --version ; exit 0
     - clang --version ; exit 0
 
+    ### submodules ----------------
+    - git submodule add https://github.com/TokTok/c-toxcore c-toxcore
+    - cd c-toxcore/ ; git checkout a096c71db867ac83fc3e01e0fbe98573d20f9286
+    - git submodule add https://github.com/jedisct1/libsodium libsodium
+    - cd libsodium/ ; git checkout tags/1.0.11
+    ### submodules ----------------
+
     ### ------- compile and install libsodium -------
     - cd libsodium/ ; ./autogen.sh
     - cd libsodium/ ; ./configure && make check
