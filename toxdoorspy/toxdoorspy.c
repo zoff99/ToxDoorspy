@@ -74,8 +74,8 @@ static struct v4lconvert_data *v4lconvert_data;
 // ----------- version -----------
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 99
-#define VERSION_PATCH 6
-static const char global_version_string[] = "0.99.6";
+#define VERSION_PATCH 7
+static const char global_version_string[] = "0.99.7";
 // ----------- version -----------
 // ----------- version -----------
 
@@ -90,7 +90,6 @@ typedef struct DHT_node {
 
 #define MAX_AVATAR_FILE_SIZE 65536
 #define TOXIC_MAX_NAME_LENGTH 32   /* Must be <= TOX_MAX_NAME_LENGTH */
-// #define PATH_MAX 255
 #define TIME_STR_SIZE 32
 #define MAX_STR_SIZE 200
 
@@ -252,9 +251,9 @@ const char *file_extension_archive = ".zip";
 
 char *v4l2_device; // video device filename
 
-const char *shell_cmd__single_shot = "/home/pi/inst_/single_shot.sh 2> /dev/null";
-const char *shell_cmd__get_cpu_temp = "/home/pi/inst_/get_cpu_temp.sh 2> /dev/null";
-const char *shell_cmd__get_gpu_temp = "/home/pi/inst_/get_gpu_temp.sh 2> /dev/null";
+const char *shell_cmd__single_shot = "./scripts/single_shot.sh 2> /dev/null";
+const char *shell_cmd__get_cpu_temp = "./scripts/get_cpu_temp.sh 2> /dev/null";
+const char *shell_cmd__get_gpu_temp = "./scripts/get_gpu_temp.sh 2> /dev/null";
 const char *shell_cmd__get_my_number_of_open_files = "cat /proc/sys/fs/file-nr 2> /dev/null";
 int global_want_restart = 0;
 const char *global_timestamp_format = "%H:%M:%S";
