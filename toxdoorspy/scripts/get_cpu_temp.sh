@@ -1,4 +1,5 @@
 #! /bin/bash
 
-. "$(dirnname $0)"/set_os_dir.sh
-"$(dirnname $0)"/"$_OS_DIR_"/$(basename "$0")
+_dir=$(dirname "${0}")
+. "$_dir"/set_os_dir.sh
+"$_dir"/"$_OS_DIR_"/$(basename "$0")
