@@ -55,7 +55,7 @@ dependencies:
     - cd c-toxcore ; sudo make install
     - cd c-toxcore ; sudo ldconfig -v 2>/dev/null | grep toxcore
     ### ------------ run tests
-    - cd c-toxcore ; make test ARGS="-V" ; ex1=$? ; if [ $ex1 -ne 0 ]; then sleep 60; make test ARGS="-V" ; exit $? ; fi
+    # - cd c-toxcore ; make test ARGS="-V" ; ex1=$? ; if [ $ex1 -ne 0 ]; then sleep 60; make test ARGS="-V" ; exit $? ; fi
     ### ------------ compile and install c-toxcore ------------
 
 
@@ -138,5 +138,6 @@ test:
     - sleep 10
     - cd toxdoorspy ; cat ./toxdoorspy.log
     - cd toxdoorspy ; cat ./toxdoorspy.log | grep '\-\-MyToxID\-\-:' | cut -d':' -f 3
-    - sleep 240
+    - sleep 10
+    #- sleep 240
     - cd toxdoorspy ; cat ./toxdoorspy.log
