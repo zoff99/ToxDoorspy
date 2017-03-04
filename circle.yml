@@ -135,7 +135,7 @@ dependencies:
     - cd toxdoorspy ; . ~/pp ; $CC -O2 -fPIC -Wall -Wextra -Wpedantic -o toxdoorspy toxdoorspy.c -std=gnu99 -lsodium -I"$_SYSROOT_"/usr/local/include/ -L"$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/ -ltoxcore -ltoxav -lpthread -lvpx -ljpeg -lv4lconvert
     - cd toxdoorspy ; ldd toxdoorspy ; exit 0
     - cd toxdoorspy ; find . -name '*toxdoorspy*' -exec ls -al {} \; 2> /dev/null ; exit 0
-    - cd toxdoorspy ; $CC -O2 -Wall -Wextra -Wpedantic -o toxdoorspy_static toxdoorspy.c -static -std=gnu99 -L"$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/ -I"$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/ -lsodium -ltoxcore -ltoxav -lsodium -lpthread -static-libgcc -static-libstdc++ -lopus -lvpx -lm -lpthread -lv4lconvert -ljpeg -lm -lrt
+    - cd toxdoorspy ; . ~/pp ; $CC -O2 -Wall -Wextra -Wpedantic -o toxdoorspy_static toxdoorspy.c -static -std=gnu99 -L"$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/ -I"$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/ -lsodium -ltoxcore -ltoxav -lsodium -lpthread -static-libgcc -static-libstdc++ -lopus -lvpx -lm -lpthread -lv4lconvert -ljpeg -lm -lrt
     - cd toxdoorspy ; ls -al toxdoorspy toxdoorspy_static
     - cd toxdoorspy ; cp -av ./toxdoorspy $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
     - cd toxdoorspy ; cp -av ./toxdoorspy_static $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
