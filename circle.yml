@@ -2,7 +2,7 @@ machine:
   timezone:
     Europe/Berlin
   environment:
-    MAKEFLAGS: "j4"
+    MAKEFLAGS: ""
 dependencies:
   pre:
     - sudo apt-get update
