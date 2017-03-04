@@ -131,7 +131,7 @@ dependencies:
     - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg1.tgz
     # install raspi binary pkgs -------------------------
 
-    - make clean ; exit 0
+    - cd toxdoorspy ; rm -fv toxdoorspy toxdoorspy_static
     - cd toxdoorspy ; . ~/pp ; $CC -O2 -fPIC -Wall -Wextra -Wpedantic -o toxdoorspy toxdoorspy.c -std=gnu99 -lsodium -I"$_SYSROOT_"/usr/local/include/ -L"$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/ -ltoxcore -ltoxav -lpthread -lvpx -ljpeg -lv4lconvert
     - cd toxdoorspy ; ldd toxdoorspy ; exit 0
     - cd toxdoorspy ; find . -name '*toxdoorspy*' -exec ls -al {} \; 2> /dev/null ; exit 0
@@ -145,7 +145,7 @@ dependencies:
 
 test:
   override:
-    - cd toxdoorspy ; make clean
+    - cd toxdoorspy ; rm -fv toxdoorspy toxdoorspy_static
     - cd toxdoorspy ; gcc -O2 -fPIC -Wall -Wextra -Wpedantic -o toxdoorspy toxdoorspy.c -std=gnu99 -lsodium -I/usr/local/include/ -ltoxcore -ltoxav -lpthread -lvpx -lv4lconvert
     - cd toxdoorspy ; ldd toxdoorspy ; exit 0
     - find / -name '*libjpeg*' 2> /dev/null ; exit 0
