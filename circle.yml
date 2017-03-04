@@ -121,23 +121,24 @@ dependencies:
 
 
     # install raspi binary pkgs -------------------------
-    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libjpeg8-dev.tgz' -O ~/pkg1.tgz
-    - cd "$_SYSROOT_" ; tar -xzvf ~/pkg1.tgz
     - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libv4l-dev.tgz' -O ~/pkg2.tgz
-    - cd "$_SYSROOT_" ; tar -xzvf ~/pkg2.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg2.tgz
     - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libv4lconvert0.tgz' -O ~/pkg3.tgz
-    - cd "$_SYSROOT_" ; tar -xzvf ~/pkg3.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg3.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libjpeg62-turbo.tgz' -O ~/pkg4.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg4.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libjpeg62-turbo-dev.tgz' -O ~/pkg1.tgz
+    - . ~/pp;cd "$_SYSROOT_" ; tar -xzvf ~/pkg1.tgz
     # install raspi binary pkgs -------------------------
 
     - make clean ; exit 0
-    - cd toxdoorspy ; . ~/pp ; $CC -O2 -fPIC -Wall -Wextra -Wpedantic -o toxdoorspy toxdoorspy.c -std=gnu99 -lsodium -I"$_SYSROOT_"/usr/local/include/ -ltoxcore -ltoxav -lpthread -lvpx -lv4lconvert
+    - cd toxdoorspy ; . ~/pp ; $CC -O2 -fPIC -Wall -Wextra -Wpedantic -o toxdoorspy toxdoorspy.c -std=gnu99 -lsodium -I"$_SYSROOT_"/usr/local/include/ -L"$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/ -ltoxcore -ltoxav -lpthread -lvpx -ljpeg -lv4lconvert
     - cd toxdoorspy ; ldd toxdoorspy ; exit 0
     - cd toxdoorspy ; find . -name '*toxdoorspy*' -exec ls -al {} \; 2> /dev/null ; exit 0
-    - cd toxdoorspy ; $CC -O2 -Wall -Wextra -Wpedantic -o toxdoorspy_static toxdoorspy.c -static -std=gnu99 -L/usr/local/lib -I"$_SYSROOT_"/usr/local/include/ -lsodium -ltoxcore -ltoxav -ltoxgroup -ltoxmessenger -ltoxfriends -ltoxnetcrypto -ltoxdht -ltoxnetwork -ltoxcrypto -lsodium -lpthread -static-libgcc -static-libstdc++ -lopus -lvpx -lm -lpthread -lv4lconvert -ljpeg -lm -lrt
+    - cd toxdoorspy ; $CC -O2 -Wall -Wextra -Wpedantic -o toxdoorspy_static toxdoorspy.c -static -std=gnu99 -L"$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/ -I"$_SYSROOT_"/usr/lib/arm-linux-gnueabihf/ -lsodium -ltoxcore -ltoxav -lsodium -lpthread -static-libgcc -static-libstdc++ -lopus -lvpx -lm -lpthread -lv4lconvert -ljpeg -lm -lrt
     - cd toxdoorspy ; ls -al toxdoorspy toxdoorspy_static
     - cd toxdoorspy ; cp -av ./toxdoorspy $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
     - cd toxdoorspy ; cp -av ./toxdoorspy_static $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
-
 
 ## ----------- RASPI cross compile ----------------
 
