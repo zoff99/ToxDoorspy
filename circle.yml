@@ -130,13 +130,13 @@ dependencies:
     # install raspi binary pkgs -------------------------
 
     - make clean ; exit 0
-    - . ~/pp; $CC -O2 -fPIC -Wall -Wextra -Wpedantic -o toxdoorspy toxdoorspy.c -std=gnu99 -lsodium -I"$_SYSROOT_"/usr/local/include/ -ltoxcore -ltoxav -lpthread -lvpx -lv4lconvert
-    - ldd toxdoorspy ; exit 0
-    - find . -name '*toxdoorspy*' -exec ls -al {} \; 2> /dev/null ; exit 0
-    - $CC -O2 -Wall -Wextra -Wpedantic -o toxdoorspy_static toxdoorspy.c -static -std=gnu99 -L/usr/local/lib -I"$_SYSROOT_"/usr/local/include/ -lsodium -ltoxcore -ltoxav -ltoxgroup -ltoxmessenger -ltoxfriends -ltoxnetcrypto -ltoxdht -ltoxnetwork -ltoxcrypto -lsodium -lpthread -static-libgcc -static-libstdc++ -lopus -lvpx -lm -lpthread -lv4lconvert -ljpeg -lm -lrt
-    - ls -al toxdoorspy toxdoorspy_static
-    - cp -av ./toxdoorspy $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
-    - cp -av ./toxdoorspy_static $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
+    - cd toxdoorspy ; . ~/pp ; $CC -O2 -fPIC -Wall -Wextra -Wpedantic -o toxdoorspy toxdoorspy.c -std=gnu99 -lsodium -I"$_SYSROOT_"/usr/local/include/ -ltoxcore -ltoxav -lpthread -lvpx -lv4lconvert
+    - cd toxdoorspy ; ldd toxdoorspy ; exit 0
+    - cd toxdoorspy ; find . -name '*toxdoorspy*' -exec ls -al {} \; 2> /dev/null ; exit 0
+    - cd toxdoorspy ; $CC -O2 -Wall -Wextra -Wpedantic -o toxdoorspy_static toxdoorspy.c -static -std=gnu99 -L/usr/local/lib -I"$_SYSROOT_"/usr/local/include/ -lsodium -ltoxcore -ltoxav -ltoxgroup -ltoxmessenger -ltoxfriends -ltoxnetcrypto -ltoxdht -ltoxnetwork -ltoxcrypto -lsodium -lpthread -static-libgcc -static-libstdc++ -lopus -lvpx -lm -lpthread -lv4lconvert -ljpeg -lm -lrt
+    - cd toxdoorspy ; ls -al toxdoorspy toxdoorspy_static
+    - cd toxdoorspy ; cp -av ./toxdoorspy $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
+    - cd toxdoorspy ; cp -av ./toxdoorspy_static $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
 
 
 ## ----------- RASPI cross compile ----------------
