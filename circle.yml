@@ -1,6 +1,6 @@
 machine:
   timezone:
-    Europe/Vienna
+    Europe/Berlin
   environment:
     MAKEFLAGS: "j4"
 dependencies:
