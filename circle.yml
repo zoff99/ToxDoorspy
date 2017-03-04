@@ -120,14 +120,23 @@ dependencies:
     - . ~/pp;cp -av "$PKGSDIR"/* $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
 
 
-    - cd toxdoorspy ; make clean
-    - . ~/pp;cd toxdoorspy ; $CC -O2 -fPIC -Wall -Wextra -Wpedantic -o toxdoorspy toxdoorspy.c -std=gnu99 -lsodium -I"$_SYSROOT_"/usr/local/include/ -ltoxcore -ltoxav -lpthread -lvpx -lv4lconvert
-    - cd toxdoorspy ; ldd toxdoorspy ; exit 0
+    # install raspi binary pkgs -------------------------
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libjpeg8-dev.tgz' -O ~/pkg1.tgz
+    - cd "$_SYSROOT_" ; tar -xzvf ~/pkg1.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libv4l-dev.tgz' -O ~/pkg2.tgz
+    - cd "$_SYSROOT_" ; tar -xzvf ~/pkg2.tgz
+    - wget 'https://github.com/zoff99/raspi_cross_compile/raw/master/bin_packages/libv4lconvert0.tgz' -O ~/pkg3.tgz
+    - cd "$_SYSROOT_" ; tar -xzvf ~/pkg3.tgz
+    # install raspi binary pkgs -------------------------
+
+    - make clean ; exit 0
+    - . ~/pp; $CC -O2 -fPIC -Wall -Wextra -Wpedantic -o toxdoorspy toxdoorspy.c -std=gnu99 -lsodium -I"$_SYSROOT_"/usr/local/include/ -ltoxcore -ltoxav -lpthread -lvpx -lv4lconvert
+    - ldd toxdoorspy ; exit 0
     - find . -name '*toxdoorspy*' -exec ls -al {} \; 2> /dev/null ; exit 0
-    - cd toxdoorspy ; $CC -O2 -Wall -Wextra -Wpedantic -o toxdoorspy_static toxdoorspy.c -static -std=gnu99 -L/usr/local/lib -I"$_SYSROOT_"/usr/local/include/ -lsodium -ltoxcore -ltoxav -ltoxgroup -ltoxmessenger -ltoxfriends -ltoxnetcrypto -ltoxdht -ltoxnetwork -ltoxcrypto -lsodium -lpthread -static-libgcc -static-libstdc++ -lopus -lvpx -lm -lpthread -lv4lconvert -ljpeg -lm -lrt
-    - cd toxdoorspy ; ls -al toxdoorspy toxdoorspy_static
-    - cp -av toxdoorspy/toxdoorspy $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
-    - cp -av toxdoorspy/toxdoorspy_static $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
+    - $CC -O2 -Wall -Wextra -Wpedantic -o toxdoorspy_static toxdoorspy.c -static -std=gnu99 -L/usr/local/lib -I"$_SYSROOT_"/usr/local/include/ -lsodium -ltoxcore -ltoxav -ltoxgroup -ltoxmessenger -ltoxfriends -ltoxnetcrypto -ltoxdht -ltoxnetwork -ltoxcrypto -lsodium -lpthread -static-libgcc -static-libstdc++ -lopus -lvpx -lm -lpthread -lv4lconvert -ljpeg -lm -lrt
+    - ls -al toxdoorspy toxdoorspy_static
+    - cp -av ./toxdoorspy $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
+    - cp -av ./toxdoorspy_static $CIRCLE_ARTIFACTS/"${CUR_ARCH_}"/
 
 
 ## ----------- RASPI cross compile ----------------
