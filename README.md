@@ -6,3 +6,7 @@ Build Status
 **Travis:** [![Build Status](https://travis-ci.org/zoff99/ToxDoorspy.png?branch=master)](https://travis-ci.org/zoff99/ToxDoorspy)
 
 
+Development Snapshot Version
+=
+the latest Development Snapshot can be downloaded from CircleCI, [here](https://circleci.com/api/v1/project/zoff99/ToxDoorspy/latest/artifacts/0/$CIRCLE_ARTIFACTS/ubuntu_14_04_binaries/toxdoorspy_static?filter=successful&branch=master)
+
