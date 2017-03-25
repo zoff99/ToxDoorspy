@@ -2,6 +2,8 @@
 
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
         _OS_DIR_="/linux/"
+if [[ "$OSTYPE" == "linux-gnueabihf" ]]; then
+        _OS_DIR_="/raspi/"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
         # Mac OSX
         _OS_DIR_="/osx/"
