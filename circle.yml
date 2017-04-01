@@ -19,6 +19,12 @@ machine:
     RASPI_s_: "/home/ubuntu/src/"
     RASPI_PKGSDIR: "/home/ubuntu/pkgs/"
 ## ----------- RASPI cross compile ----------------
+    # toxcore v0.1.6
+    CTOXCORE_VERSION_HASH: 895de7ef26e7617769f2271345e414545c2581f8
+    LIBSODIUM_VERSION: "tags/1.0.11"
+    LIBSODIUM_BRANCH: "1.0.11"
+    RASPBERRRY_TOOLS_HASH: d820ab9c21969013b4e56c7e9cba25518afcdd44
+    
 dependencies:
   pre:
     - sudo apt-get update
@@ -37,8 +43,8 @@ dependencies:
     - git submodule add --force https://github.com/TokTok/c-toxcore c-toxcore ; echo ok
     - git submodule add --force https://github.com/jedisct1/libsodium libsodium ; echo ok
     - git submodule init ; git submodule update ; echo ok
-    - cd c-toxcore/ ; git checkout a096c71db867ac83fc3e01e0fbe98573d20f9286
-    - cd libsodium/ ; git checkout tags/1.0.11
+    - cd c-toxcore/ ; git checkout $CTOXCORE_VERSION_HASH
+    - cd libsodium/ ; git checkout $LIBSODIUM_VERSION
     ### submodules ----------------
 
     ### ------- compile and install libsodium -------
@@ -71,7 +77,7 @@ dependencies:
 
     - mkdir ~/cc/
     - cd ~/cc ; git clone https://github.com/raspberrypi/tools
-    - cd ~/cc/tools/ ; git checkout d820ab9c21969013b4e56c7e9cba25518afcdd44
+    - cd ~/cc/tools/ ; git checkout $RASPBERRRY_TOOLS_HASH
 
     - . ~/glo;a=${CUR_ARCH_}_PKG_CONFIG_PATH;mkdir -p "${!a}"
     - . ~/glo;a=${CUR_ARCH_}_PKGSDIR;mkdir -p "${!a}"
@@ -105,13 +111,13 @@ dependencies:
     - . ~/pp;~/do_compile.sh "opus" --prefix="$_SYSROOT_"/usr --disable-shared --disable-soname-versions --target="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --host="$_TOOL_PREFIX"
     - . ~/pp;~/do_package.sh "opus" --prefix="$INSTALL_DEST"/usr --disable-shared --disable-soname-versions --target="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --host="$_TOOL_PREFIX"
 
-    - . ~/pp;cd $_s_;git clone --depth=1 --branch=1.0.11 https://github.com/jedisct1/libsodium.git
+    - . ~/pp;cd $_s_;git clone --depth=1 --branch=$LIBSODIUM_BRANCH https://github.com/jedisct1/libsodium.git
     - . ~/pp;cd $_s_/libsodium/;autoreconf -fi
     - . ~/pp;~/do_compile.sh "libsodium" --prefix="$_SYSROOT_"/usr --disable-shared --disable-soname-versions --target="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --host="$_TOOL_PREFIX" --enable-minimal --disable-pie
     - . ~/pp;~/do_package.sh "libsodium" --prefix="$INSTALL_DEST"/usr --disable-shared --disable-soname-versions --target="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --host="$_TOOL_PREFIX" --enable-minimal --disable-pie
 
     - . ~/pp;cd $_s_;git clone https://github.com/TokTok/c-toxcore
-    - . ~/pp;cd $_s_/c-toxcore/;git checkout 895de7ef26e7617769f2271345e414545c2581f8 # v0.1.6
+    - . ~/pp;cd $_s_/c-toxcore/;git checkout $CTOXCORE_VERSION_HASH
     - . ~/pp;cd $_s_/c-toxcore/;autoreconf -fi
     - . ~/pp;~/do_compile.sh "c-toxcore" --prefix="$_SYSROOT_"/usr --disable-soname-versions --host="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --disable-testing --disable-rt
     - . ~/pp;~/do_package.sh "c-toxcore" --prefix="$INSTALL_DEST"/usr --disable-soname-versions --host="$_TOOL_PREFIX" --with-sysroot="$_SYSROOT_" --disable-testing --disable-rt
