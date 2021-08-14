@@ -74,8 +74,8 @@ static struct v4lconvert_data *v4lconvert_data;
 // ----------- version -----------
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 99
-#define VERSION_PATCH 7
-static const char global_version_string[] = "0.99.7";
+#define VERSION_PATCH 8
+static const char global_version_string[] = "0.99.8";
 // ----------- version -----------
 // ----------- version -----------
 
@@ -101,7 +101,7 @@ typedef struct DHT_node {
 
 #define seconds_since_last_mod 1 // how long to wait before we process image files in seconds
 #define MAX_FILES 6 // how many filetransfers to/from 1 friend at the same time?
-#define MAX_RESEND_FILE_BEFORE_ASK 6
+#define MAX_RESEND_FILE_BEFORE_ASK 100 // OLD = 6
 #define AUTO_RESEND_SECONDS 60*5 // resend for this much seconds before asking again [5 min]
 #define VIDEO_BUFFER_COUNT 4
 #define DEFAULT_GLOBAL_VID_BITRATE 100 // kb/sec
@@ -3658,10 +3658,10 @@ int main(int argc, char *argv[])
 	Tox *tox = create_tox();
 	global_start_time = time(NULL);
 
-    // create motion-capture-dir of not already there
+    // create motion-capture-dir if not already there
     mkdir(motion_pics_dir, S_IRWXU | S_IRWXG); // og+rwx
 
-    // create workdir of not already there
+    // create workdir if not already there
     mkdir(motion_pics_work_dir, S_IRWXU | S_IRWXG); // og+rwx
 
     const char *name = "Door";
