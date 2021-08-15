@@ -63,7 +63,7 @@ echo "cd $DOORSPYCAMDIR"
 cd "$DOORSPYCAMDIR"
 
 echo "starting motion capture ..."
-nohup "$MOTIONBINARY" -c ./motion.conf -d 6 > "$MOTION_LOGFILE" 2>&1 &
+nohup "$MOTIONBINARY" -c ./motion.conf -d 8 > "$MOTION_LOGFILE" 2>&1 &
 
 sleep 5
 
