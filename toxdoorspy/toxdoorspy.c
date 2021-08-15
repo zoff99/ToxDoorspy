@@ -296,7 +296,7 @@ TOX_CONNECTION my_connection_status = TOX_CONNECTION_NONE;
 FILE *logfile = NULL;
 FriendsList Friends;
 
-void dbg(int level, const char *fmt, ...)
+void dbg(int level, const char *msg, ...)
 {
     struct timeval tv;
     gettimeofday(&tv, NULL);
