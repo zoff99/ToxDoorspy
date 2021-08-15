@@ -1103,7 +1103,7 @@ void on_tox_friend_status(Tox *tox, uint32_t friend_number, TOX_USER_STATUS stat
 void friend_lossless_packet_cb(Tox *tox, uint32_t friend_number, const uint8_t *data, size_t length, void *user_data)
 {
     // TODO: write me
-    dbg(2, "friend_lossless_packet_cb --> TODO\n");
+    dbg(2, "friend_lossless_packet_cb --> TODO:fn=%d,len=%d\n", friend_number, (int)length);
 }
 
 void friend_message_v2_cb(Tox *tox, uint32_t friend_number, const uint8_t *raw_message, size_t raw_message_len)
