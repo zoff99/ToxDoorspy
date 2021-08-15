@@ -1103,25 +1103,25 @@ void on_tox_friend_status(Tox *tox, uint32_t friend_number, TOX_USER_STATUS stat
 void friend_lossless_packet_cb(Tox *tox, uint32_t friend_number, const uint8_t *data, size_t length, void *user_data)
 {
     // TODO: write me
-    dbg(2, "friend_lossless_packet_cb --> TODO");
+    dbg(2, "friend_lossless_packet_cb --> TODO\n");
 }
 
 void friend_message_v2_cb(Tox *tox, uint32_t friend_number, const uint8_t *raw_message, size_t raw_message_len)
 {
     // TODO: write me
-    dbg(2, "friend_message_v2_cb --> TODO");
+    dbg(2, "friend_message_v2_cb --> TODO\n");
 }
 
 void friend_read_receipt_message_v2_cb(Tox *tox, uint32_t friend_number, uint32_t ts_sec, const uint8_t *msgid)
 {
     // TODO: write me
-    dbg(2, "friend_read_receipt_message_v2_cb --> TODO");
+    dbg(2, "friend_read_receipt_message_v2_cb --> TODO\n");
 }
 
 void friend_sync_message_v2_cb(Tox *tox, uint32_t friend_number, const uint8_t *message, size_t length)
 {
     // TODO: write me
-    dbg(2, "friend_sync_message_v2_cb --> TODO");
+    dbg(2, "friend_sync_message_v2_cb --> TODO\n");
 }
 
 void friendlist_onConnectionChange(Tox *m, uint32_t num, TOX_CONNECTION connection_status, void *user_data)
