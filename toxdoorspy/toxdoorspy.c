@@ -297,72 +297,63 @@ FriendsList Friends;
 
 void dbg(int level, const char *fmt, ...)
 {
-	char *level_and_format = NULL;
-	char *fmt_copy = NULL;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    struct tm tm = *localtime(&tv.tv_sec);
 
-	if (fmt == NULL)
-	{
-		return;
-	}
+    if (msg == NULL || strlen(msg) < 1) {
+        // log message is NULL or msg length is 0 or negative
+        msg = empty_log_message;
+    }
 
-	if (strlen(fmt) < 1)
-	{
-		return;
-	}
+    // 2019-08-03 17:01:04.440494 --> 4+1+2+1+2+1+2+1+2+1+2+1+6 = 26 ; [I] --> 5 ; + msg + \n
+    // char buffer[26 + 5 + strlen(msg) + 1]; // = "0000-00-00 00:00:00.000000 [_] msg\n" -- removed extra trailing \0\0.
+    const size_t len = 26 + 5 + strlen(msg) + 2;
+    char *buffer = calloc(1, len);
+    snprintf(buffer, len, "%04d-%02d-%02d %02d:%02d:%02d.%06ld [_] %s\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+             tm.tm_hour, tm.tm_min, tm.tm_sec, tv.tv_usec, msg);
 
-	if (!logfile)
-	{
-		return;
-	}
+    switch (level) {
+        case 0:
+            buffer[28] = 'E';
+            break;
 
-	if ((level < 0) || (level > 9))
-	{
-		level = 0;
-	}
+        case 1:
+            buffer[28] = 'W';
+            break;
 
-	level_and_format = malloc(strlen(fmt) + 3);
+        case 2:
+            buffer[28] = 'I';
+            break;
 
-	if (!level_and_format)
-	{
-		// fprintf(stderr, "free:000a\n");
-		return;
-	}
+        default:
+            if (level > 2) {
+                buffer[28] = 'D';
+            } else {
+                buffer[28] = '?';
+            }
 
-	fmt_copy = level_and_format + 2;
-	strcpy(fmt_copy, fmt);
-	level_and_format[1] = ':';
-	if (level == 0)
-	{
-		level_and_format[0] = 'E';
-	}
-	else if (level == 1)
-	{
-		level_and_format[0] = 'W';
-	}
-	else if (level == 2)
-	{
-		level_and_format[0] = 'I';
-	}
-	else
-	{
-		level_and_format[0] = 'D';
-	}
+            break;
+    }
 
-	if (level <= CURRENT_LOG_LEVEL)
-	{
-		va_list ap;
-		va_start(ap, fmt);
-		vfprintf(logfile, level_and_format, ap);
-		va_end(ap);
-	}
+    if (level <= CURRENT_LOG_LEVEL) {
+        va_list ap;
 
-	// fprintf(stderr, "free:001\n");
-	if (level_and_format)
-	{
-		// fprintf(stderr, "free:001.a\n");
-		free(level_and_format);
-	}
-	// fprintf(stderr, "free:002\n");
+// gcc parameter -DLOG2STDOUT for logging to standardout = console
+#ifdef LOG2STDOUT
+        va_start(ap, msg);
+        vprintf(buffer, ap);
+        va_end(ap);
+#endif
+
+        if (logfile) {
+            va_start(ap, msg);
+            vfprintf(logfile, buffer, ap);
+            va_end(ap);
+        }
+    }
+
+    free(buffer);
 }
 
 
@@ -3607,21 +3598,17 @@ void sigint_handler(int signo)
 
 int main(int argc, char *argv[])
 {
-	global_want_restart = 0;
-	global_video_active = 0;
+    global_want_restart = 0;
+    global_video_active = 0;
 
-	// valid audio bitrates: [ bit_rate < 6 || bit_rate > 510 ]
-	global_audio_bit_rate = 0;
-	global_video_bit_rate = DEFAULT_GLOBAL_VID_BITRATE;
+    // valid audio bitrates: [ bit_rate < 6 || bit_rate > 510 ]
+    global_audio_bit_rate = 0;
+    global_video_bit_rate = DEFAULT_GLOBAL_VID_BITRATE;
 
     logfile = fopen(log_filename, "wb");
-    setvbuf(logfile, NULL, _IONBF, 0);
+    // Line buffered, (default is fully buffered) so every logline is instantly visible (and doesn't vanish in a crash situation)
+    setvbuf(logfile, NULL, _IOLBF, 0);
 
-	
-	
-	
-	
-	
   v4l2_device = malloc(400);
   snprintf(v4l2_device, 399, "%s", "/dev/video1");
 
