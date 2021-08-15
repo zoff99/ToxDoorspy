@@ -309,9 +309,9 @@ void dbg(int level, const char *msg, ...)
 
     // 2019-08-03 17:01:04.440494 --> 4+1+2+1+2+1+2+1+2+1+2+1+6 = 26 ; [I] --> 5 ; + msg + \n
     // char buffer[26 + 5 + strlen(msg) + 1]; // = "0000-00-00 00:00:00.000000 [_] msg\n" -- removed extra trailing \0\0.
-    const size_t len = 26 + 5 + strlen(msg) + 2;
+    const size_t len = 26 + 5 + strlen(msg) + 1;
     char *buffer = calloc(1, len);
-    snprintf(buffer, len, "%04d-%02d-%02d %02d:%02d:%02d.%06ld [_] %s\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+    snprintf(buffer, len, "%04d-%02d-%02d %02d:%02d:%02d.%06ld [_] %s", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
              tm.tm_hour, tm.tm_min, tm.tm_sec, tv.tv_usec, msg);
 
     switch (level) {
@@ -361,7 +361,7 @@ void dbg(int level, const char *msg, ...)
 void tox_log_cb__custom(Tox *tox, TOX_LOG_LEVEL level, const char *file, uint32_t line, const char *func,
                         const char *message, void *user_data)
 {
-    dbg(9, "ToxCoreLogMsg: [%d] %s:%d - %s:%s", (int) level, file, (int) line, func, message);
+    dbg(9, "ToxCoreLogMsg: [%d] %s:%d - %s:%s\n", (int) level, file, (int) line, func, message);
 }
 
 
