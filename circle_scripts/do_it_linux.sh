@@ -11,7 +11,6 @@ cd $_HOME_ || exit 1
 
 export _INST_=$_HOME_/inst/
 
-git clone https://github.com/zoff99/ToxDoorspy
 git clone https://github.com/zoff99/c-toxcore
 
 mkdir -p $_INST_
@@ -31,7 +30,7 @@ export LDFLAGS=" -O2 -fPIC "
 make -j$(nproc) || exit 1
 make install || exit 1
 
-cd $_HOME_/ToxDoorspy/toxdoorspy/ || exit 1
+cd $_HOME_/../toxdoorspy/ || exit 1
 
 export CFLAGS=" -fPIC -std=gnu99 -I$_INST_/include/ -L$_INST_/lib -O2 -g -fstack-protector-all --param=ssp-buffer-size=1 "
 
@@ -51,4 +50,7 @@ $_INST_/lib/libtoxav.a \
 -lpthread \
 -o toxdoorspy
 
+ldd toxdoorspy
+ls -al toxdoorspy
+ls -hal toxdoorspy
 
