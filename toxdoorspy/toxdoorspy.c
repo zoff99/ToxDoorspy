@@ -54,6 +54,13 @@ ffmpeg_avcodec_log: Using AVStream.codeco pass codec parameters to muxers is dep
 #include <tox/tox.h>
 #include <tox/toxav.h>
 
+#undef TOX_HAVE_TOXUTIL
+#define TOX_HAVE_TOXUTIL 1
+
+#ifdef TOX_HAVE_TOXUTIL
+#include <tox/toxutil.h>
+#endif
+
 #include <linux/videodev2.h>
 #include <vpx/vpx_image.h>
 #include <sys/mman.h>
@@ -359,7 +366,11 @@ void dbg(int level, const char *fmt, ...)
 }
 
 
-
+void tox_log_cb__custom(Tox *tox, TOX_LOG_LEVEL level, const char *file, uint32_t line, const char *func,
+                        const char *message, void *user_data)
+{
+    dbg(9, "ToxCoreLogMsg: [%d] %s:%d - %s:%s", (int) level, file, (int) line, func, message);
+}
 
 
 
@@ -506,11 +517,16 @@ Tox *create_tox()
 
     tox_options_default(&options);
 
+    // ----- set options ------
+    options.ipv6_enabled = true;
+    options.local_discovery_enabled = true;
+    options.hole_punching_enabled = true;
+    options.udp_enabled = true;
+    options.tcp_port = 0; // disable tcp relay function!
+    // ----- set options ------
 
-	options.ipv6_enabled = false;
-	options.udp_enabled = true;
-	options.local_discovery_enabled = true;
-	options.hole_punching_enabled = true;
+    // set our own handler for c-toxcore logging messages!!
+    options.log_callback = tox_log_cb__custom;
 
     FILE *f = fopen(savedata_filename, "rb");
     if (f)
@@ -532,7 +548,11 @@ Tox *create_tox()
         options.savedata_data = savedata;
         options.savedata_length = fsize;
 
+#ifdef TOX_HAVE_TOXUTIL
+        tox = tox_utils_new(&options, NULL);
+#else
         tox = tox_new(&options, NULL);
+#endif
 
         free((void *)savedata);
     }
@@ -1086,6 +1106,30 @@ void send_file_to_all_friends(Tox *m, const char* file_with_path, const char* fi
 void on_tox_friend_status(Tox *tox, uint32_t friend_number, TOX_USER_STATUS status, void *user_data)
 {
 	dbg(2, "on_tox_friend_status:friendnum=%d status=%d\n", (int)friend_number, (int)status);
+}
+
+void friend_lossless_packet_cb(Tox *tox, uint32_t friend_number, const uint8_t *data, size_t length, void *user_data)
+{
+    // TODO: write me
+    dbg(2, "friend_lossless_packet_cb --> TODO");
+}
+
+void friend_message_v2_cb(Tox *tox, uint32_t friend_number, const uint8_t *raw_message, size_t raw_message_len)
+{
+    // TODO: write me
+    dbg(2, "friend_message_v2_cb --> TODO");
+}
+
+void friend_read_receipt_message_v2_cb(Tox *tox, uint32_t friend_number, uint32_t ts_sec, const uint8_t *msgid)
+{
+    // TODO: write me
+    dbg(2, "friend_read_receipt_message_v2_cb --> TODO");
+}
+
+void friend_sync_message_v2_cb(Tox *tox, uint32_t friend_number, const uint8_t *message, size_t length)
+{
+    // TODO: write me
+    dbg(2, "friend_sync_message_v2_cb --> TODO");
 }
 
 void friendlist_onConnectionChange(Tox *m, uint32_t num, TOX_CONNECTION connection_status, void *user_data)
@@ -3679,10 +3723,23 @@ int main(int argc, char *argv[])
     // init callbacks ----------------------------------
     tox_callback_friend_request(tox, friend_request_cb);
     tox_callback_friend_message(tox, friend_message_cb);
-    tox_callback_friend_connection_status(tox, friendlist_onConnectionChange);
 	tox_callback_friend_status(tox, on_tox_friend_status);
 
+#ifdef TOX_HAVE_TOXUTIL
+    dbg(9, "using toxutil");
+    tox_utils_callback_self_connection_status(tox, self_connection_status_cb);
+    tox_callback_self_connection_status(tox, tox_utils_self_connection_status_cb);
+    tox_utils_callback_friend_connection_status(tox, friendlist_onConnectionChange);
+    tox_callback_friend_connection_status(tox, tox_utils_friend_connection_status_cb);
+    tox_utils_callback_friend_lossless_packet(tox, friend_lossless_packet_cb);
+    tox_callback_friend_lossless_packet(tox, tox_utils_friend_lossless_packet_cb);
+    tox_utils_callback_friend_message_v2(tox, friend_message_v2_cb);
+    tox_utils_callback_friend_read_receipt_message_v2(tox, friend_read_receipt_message_v2_cb);
+    tox_utils_callback_friend_sync_message_v2(tox, friend_sync_message_v2_cb);
+#else
     tox_callback_self_connection_status(tox, self_connection_status_cb);
+    tox_callback_friend_connection_status(tox, friendlist_onConnectionChange);
+#endif
 
     tox_callback_file_chunk_request(tox, on_file_chunk_request);
     tox_callback_file_recv_control(tox, on_file_control);
@@ -3772,7 +3829,12 @@ int main(int argc, char *argv[])
     kill_all_file_transfers(tox);
 	close_cam();
 	toxav_kill(mytox_av);
+
+#ifdef TOX_HAVE_TOXUTIL
+    tox_utils_kill(tox);
+#else
     tox_kill(tox);
+#endif
 
     if (logfile)
     {
