@@ -30,6 +30,8 @@ jobs:
             ssh gzip tar unzip
             libcurl4-gnutls-dev
             coreutils
+            build-essential libtool autotools-dev automake checkinstall check git yasm libv4lconvert0 libv4l-dev
+            libopus-dev libvpx-dev pkg-config libx264-dev libavcodec-dev libavdevice-dev libavutil-dev libsodium-dev
 
       - checkout
 
