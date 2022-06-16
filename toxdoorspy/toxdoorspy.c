@@ -738,59 +738,73 @@ void shuffle(int *array, size_t n)
 
 void bootstap_nodes(Tox *tox, DHT_node nodes[], int number_of_nodes, int add_as_tcp_relay)
 {
-    bool res = 0;
-    size_t i = 0;
-    int *random_order_nodenums = calloc(1, sizeof(int) * number_of_nodes);
+    int random_order_nodenums[number_of_nodes];
 
-    for (size_t j = 0; (int)j < (int)number_of_nodes; j++)
-    {
+    for (size_t j = 0; (int)j < (int)number_of_nodes; j++) {
         random_order_nodenums[j] = (int)j;
     }
 
     shuffle(random_order_nodenums, number_of_nodes);
 
-    for (size_t j = 0; (int)j < (int)number_of_nodes; j++)
-    {
-        i = (size_t)random_order_nodenums[j];
-        res = sodium_hex2bin(nodes[i].key_bin, sizeof(nodes[i].key_bin),
-                             nodes[i].key_hex, sizeof(nodes[i].key_hex) - 1, NULL, NULL, NULL);
-        TOX_ERR_BOOTSTRAP error;
+    for (size_t j = 0; (int)j < (int)number_of_nodes; j++) {
+        size_t i = (size_t)random_order_nodenums[j];
+        bool res = sodium_hex2bin(nodes[i].key_bin, sizeof(nodes[i].key_bin),
+                                  nodes[i].key_hex, sizeof(nodes[i].key_hex) - 1, NULL, NULL, NULL);
+        dbg(99, "bootstap_nodes - sodium_hex2bin:res=%d\n", res);
 
-        if (add_as_tcp_relay == 1)
+        if (use_tor == 0)
         {
-            res = tox_add_tcp_relay(tox, nodes[i].ip, nodes[i].port, nodes[i].key_bin, &error); // use as TCP relay
-        }
-        else
-        {
+            TOX_ERR_BOOTSTRAP error;
             res = tox_bootstrap(tox, nodes[i].ip, nodes[i].port, nodes[i].key_bin, &error);
-#if 0
-            struct tbw_bootstrap_nodes tbw_nd;
-            memset(&tbw_nd, 0, sizeof(struct tbw_bootstrap_nodes));
-            int ip_ = inet_pton(AF_INET, nodes[i].ip, &tbw_nd.s_addr);
-            tbw_nd.sin_port = nodes[i].port;
-            memcpy(tbw_nd.key_hex, nodes[i].key_bin, 32);
-            tbw_nd.node_type = 0;
-            FILE *f = fopen("./first_udp_bootstrap_node.bin", "wb");
-            fwrite(&tbw_nd, sizeof(struct tbw_bootstrap_nodes), 1, f);
-            fclose(f);
-#endif
+
+            if (res != true) {
+                if (error == TOX_ERR_BOOTSTRAP_OK) {
+                  dbg(9, "bootstrap:%s %d [FALSE]res=TOX_ERR_BOOTSTRAP_OK\n", nodes[i].ip, nodes[i].port);
+                } else if (error == TOX_ERR_BOOTSTRAP_NULL) {
+                  dbg(9, "bootstrap:%s %d [FALSE]res=TOX_ERR_BOOTSTRAP_NULL\n", nodes[i].ip, nodes[i].port);
+                } else if (error == TOX_ERR_BOOTSTRAP_BAD_HOST) {
+                  dbg(9, "bootstrap:%s %d [FALSE]res=TOX_ERR_BOOTSTRAP_BAD_HOST\n", nodes[i].ip, nodes[i].port);
+                } else if (error == TOX_ERR_BOOTSTRAP_BAD_PORT) {
+                  dbg(9, "bootstrap:%s %d [FALSE]res=TOX_ERR_BOOTSTRAP_BAD_PORT\n", nodes[i].ip, nodes[i].port);
+                }
+            } else {
+              dbg(9, "bootstrap:%s %d [TRUE] res=%d\n", nodes[i].ip, nodes[i].port, res);
+            }
+        }
+
+        if (add_as_tcp_relay == 1) {
+            TOX_ERR_BOOTSTRAP error;
+            res = tox_add_tcp_relay(tox, nodes[i].ip, nodes[i].port, nodes[i].key_bin, &error); // use also as TCP relay
+
+            if (res != true) {
+                if (error == TOX_ERR_BOOTSTRAP_OK) {
+                  dbg(9, "add_tcp_relay:%s %d [FALSE]res=TOX_ERR_BOOTSTRAP_OK\n", nodes[i].ip, nodes[i].port);
+                } else if (error == TOX_ERR_BOOTSTRAP_NULL) {
+                  dbg(9, "add_tcp_relay:%s %d [FALSE]res=TOX_ERR_BOOTSTRAP_NULL\n", nodes[i].ip, nodes[i].port);
+                } else if (error == TOX_ERR_BOOTSTRAP_BAD_HOST) {
+                  dbg(9, "add_tcp_relay:%s %d [FALSE]res=TOX_ERR_BOOTSTRAP_BAD_HOST\n", nodes[i].ip, nodes[i].port);
+                } else if (error == TOX_ERR_BOOTSTRAP_BAD_PORT) {
+                  dbg(9, "add_tcp_relay:%s %d [FALSE]res=TOX_ERR_BOOTSTRAP_BAD_PORT\n", nodes[i].ip, nodes[i].port);
+                }
+            } else {
+              dbg(9, "add_tcp_relay:%s %d [TRUE] res=%d\n", nodes[i].ip, nodes[i].port, res);
+            }
+        } else {
+            dbg(2, "Not adding any TCP relays\n");
         }
     }
-
-    free(random_order_nodenums);
 }
-
 void bootstrap(Tox *tox)
 {
     // use these nodes as tcp-relays
     DHT_node nodes_tcp_relays[] =
     {
-        {"tox.abilinski.com", 33445, "10C00EB250C3233E343E2AEBA07115A5C28920E9C8D29492F6D00B29049EDC7E", {0}},
-        {"78.46.73.141",      33445, "02807CF4F8BB8FB390CC3794BDF1E8449E9A8392C5D3F2200019DA9F1E812E46", {0}},
-        {"198.46.138.44",     33445, "F404ABAA1C99A9D37D61AB54898F56793E1DEF8BD46B1038B9D822E8460FAB67", {0}},
-        {"198.46.138.44",      3389, "F404ABAA1C99A9D37D61AB54898F56793E1DEF8BD46B1038B9D822E8460FAB67", {0}},
-        {"185.14.30.213",       443, "2555763C8C460495B14157D234DD56B86300A2395554BCAE4621AC345B8C1B1B", {0}},
-        {"185.14.30.213",      3389, "2555763C8C460495B14157D234DD56B86300A2395554BCAE4621AC345B8C1B1B", {0}}
+        {"tox02.ky0uraku.xyz",33445, "D3D6D7C0C7009FC75406B0A49E475996C8C4F8BCE1E6FC5967DE427F8F600527", {0}},
+        {"tox.plastiras.org",   443, "8E8B63299B3D520FB377FE5100E65E3322F7AE5B20A0ACED2981769FC5B43725", {0}},
+        {"tox.initramfs.io",  33445, "3F0A45A268367C1BEA652F258C85F4A66DA76BCAA667A49E770BCC4917AB6A25", {0}},
+        {"46.101.197.175",    33445, "CD133B521159541FB1D326DE9850F5E56A6C724B5B8E5EB5CD8D950408E95707", {0}},
+        {"122.116.39.151",     3389, "5716530A10D362867C8E87EE1CD5362A233BAFBBA4CF47FA73B7CAD368BD5E6E", {0}},
+        {"172.105.109.31",    33445, "D46E97CF995DC1820B92B7D899E152A217D36ABE22730FEA4B6BF1BFC06C617C", {0}}
     };
     // use these nodes as bootstrap nodes
     DHT_node nodes_bootstrap_nodes[] =
