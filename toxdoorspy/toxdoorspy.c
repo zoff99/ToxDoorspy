@@ -3997,7 +3997,7 @@ int main(int argc, char *argv[])
             loop_counter = 0;
             // if not yet online, bootstrap every 20 seconds
             dbg(2, "Tox NOT online yet, bootstrapping again\n");
-            bootstrap_wrapper(tox);
+            bootstrap(tox);
 
             if (try >= max_tries)
             {
