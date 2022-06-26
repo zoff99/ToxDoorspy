@@ -3972,6 +3972,10 @@ int main(int argc, char *argv[])
 
 	long long unsigned int cur_time = time(NULL);
 	uint8_t off = 1;
+    long long loop_counter = 0;
+    int max_tries = 2;
+    int try = 0;
+
 	while (1)
 	{
         tox_iterate(tox, NULL);
@@ -3983,6 +3987,25 @@ int main(int argc, char *argv[])
 			break;
         }
         c_sleep(20);
+
+        loop_counter++;
+
+        if (loop_counter > (50 * 20))
+        {
+            try++;
+
+            loop_counter = 0;
+            // if not yet online, bootstrap every 20 seconds
+            dbg(2, "Tox NOT online yet, bootstrapping again\n");
+            bootstrap_wrapper(tox);
+
+            if (try >= max_tries)
+            {
+                // break the loop and start anyway
+                // we will bootstrap again later if we are not online every few seconds
+                break;
+            }
+        }
     }
 
 
