@@ -94,6 +94,7 @@ typedef struct DHT_node {
 } DHT_node;
 
 
+#define TOX_CAPABILITY_FTV2 ((uint64_t)1) << 4
 
 #define MAX_AVATAR_FILE_SIZE 65536
 #define TOXIC_MAX_NAME_LENGTH 32   /* Must be <= TOX_MAX_NAME_LENGTH */
@@ -1028,28 +1029,53 @@ void send_file_to_friend_real(Tox *m, uint32_t num, const char* filename, int re
 		return;
     }
 
+    uint64_t f_cap = tox_friend_get_capabilities(m, num);
+    dbg(0, "send_file_to_friend_real:friend_capabilites=%d\n", (int)f_cap);
+
+    char *o = calloc(1, (size_t)TOX_FILE_ID_LENGTH);
+    if (o == NULL)
+    {
+		dbg(0, "send_file_to_friend_real:callor error\n");
+		fclose(file_to_send);
+		return;
+    }
+
     char file_name[TOX_MAX_FILENAME_LENGTH];
     size_t namelen = get_file_name(file_name, sizeof(file_name), path);
-
     TOX_ERR_FILE_SEND err;
 
-	char *o = calloc(1, (size_t)TOX_FILE_ID_LENGTH);
-	uint32_t filenum = -1;
-	if (resume == 0)
-	{
-		dbg(9, "resume == 0\n");
-		random_char(o, (int)TOX_FILE_ID_LENGTH);
+    uint32_t filenum = -1;
+    if (resume == 0)
+    {
+        dbg(9, "resume == 0\n");
+        tox_messagev3_get_new_message_id((uint8_t *)o);
 
-		filenum = tox_file_send(m, num, TOX_FILE_KIND_DATA, (uint64_t)filesize, (uint8_t*)o,
-			(uint8_t *)file_name, namelen, &err);
-	}
-	else
-	{
+        if ((f_cap & TOX_CAPABILITY_FTV2) != 0)
+        {
+            filenum = tox_file_send(m, num, TOX_FILE_KIND_FTV2, (uint64_t)filesize, (uint8_t*)o,
+                (uint8_t *)file_name, namelen, &err);
+        }
+        else
+        {
+            filenum = tox_file_send(m, num, TOX_FILE_KIND_DATA, (uint64_t)filesize, (uint8_t*)o,
+                (uint8_t *)file_name, namelen, &err);
+        }
+    }
+    else
+    {
 		dbg(9, "resume == 1\n");
 
-		filenum = tox_file_send(m, num, TOX_FILE_KIND_DATA, (uint64_t)filesize, fileid_resume,
-			(uint8_t *)file_name, namelen, &err);
-	}
+        if ((f_cap & TOX_CAPABILITY_FTV2) != 0)
+        {
+            filenum = tox_file_send(m, num, TOX_FILE_KIND_FTV2, (uint64_t)filesize, fileid_resume,
+                (uint8_t *)file_name, namelen, &err);
+        }
+        else
+        {
+            filenum = tox_file_send(m, num, TOX_FILE_KIND_DATA, (uint64_t)filesize, fileid_resume,
+                (uint8_t *)file_name, namelen, &err);
+        }
+    }
 	dbg(2, "send_file_to_friend:tox_file_send=%s filenum=%d\n", file_name, (int)filenum);
 
     if (err != TOX_ERR_FILE_SEND_OK)
@@ -1059,8 +1085,18 @@ void send_file_to_friend_real(Tox *m, uint32_t num, const char* filename, int re
     }
 
 	dbg(2, "send_file_to_friend_real(1):tox_file_send=%s filenum=%d\n", file_name, (int)filenum);
-    struct FileTransfer *ft = new_file_transfer(num, filenum, FILE_TRANSFER_SEND, TOX_FILE_KIND_DATA);
-	dbg(2, "send_file_to_friend_real(2):tox_file_send=%s filenum=%d\n", file_name, (int)filenum);
+
+    struct FileTransfer *ft;
+    if ((f_cap & TOX_CAPABILITY_FTV2) != 0)
+    {
+        ft = new_file_transfer(num, filenum, FILE_TRANSFER_SEND, TOX_FILE_KIND_FTV2);
+    }
+    else
+    {
+        ft = new_file_transfer(num, filenum, FILE_TRANSFER_SEND, TOX_FILE_KIND_DATA);
+    }
+
+    dbg(2, "send_file_to_friend_real(2):tox_file_send=%s filenum=%d\n", file_name, (int)filenum);
 
     if (!ft)
     {
@@ -2038,21 +2074,24 @@ void on_file_recv(Tox *m, uint32_t friendnumber, uint32_t filenumber, uint32_t k
 
 void save_resumable_fts(Tox *m, uint32_t friendnum)
 {
-	size_t i;
-	int friendlistnum = find_friend_in_friendlist(friendnum);
-	for (i = 0; i < MAX_FILES; ++i)
-	{
+    size_t i;
+    int friendlistnum = find_friend_in_friendlist(friendnum);
+    for (i = 0; i < MAX_FILES; ++i)
+    {
 		// for now save only sending FTs
 		struct FileTransfer *ft = &Friends.list[friendlistnum].file_sender[i];
-		if (ft->state != FILE_TRANSFER_INACTIVE)
-		{
-			dbg(9, "save_resumable_fts:saving sender FT i=%d ftnum=%d for friendnum:#%d pos=%d filesize=%d\n", i, (int)ft->filenum, (int)friendnum, (int)ft->position, (int)ft->file_size);
-			ll_push(&resumable_filetransfers, sizeof(struct FileTransfer), ft);
-			dbg(9, "save_resumable_fts:pushed struct=%p\n", resumable_filetransfers->val);
-		}
-	}
+        if (ft->file_type != TOX_FILE_KIND_FTV2)
+        {
+            if (ft->state != FILE_TRANSFER_INACTIVE)
+            {
+                dbg(9, "save_resumable_fts:saving sender FT i=%d ftnum=%d for friendnum:#%d pos=%d filesize=%d\n", i, (int)ft->filenum, (int)friendnum, (int)ft->position, (int)ft->file_size);
+                ll_push(&resumable_filetransfers, sizeof(struct FileTransfer), ft);
+                dbg(9, "save_resumable_fts:pushed struct=%p\n", resumable_filetransfers->val);
+            }
+        }
+    }
 
-	Friends.list[friendlistnum].have_resumed_fts = 0;
+    Friends.list[friendlistnum].have_resumed_fts = 0;
 }
 
 
@@ -2168,17 +2207,36 @@ void on_file_chunk_request(Tox *tox, uint32_t friendnumber, uint32_t filenumber,
     }
 
     TOX_ERR_FILE_SEND_CHUNK err;
-    tox_file_send_chunk(tox, friendnumber, filenumber, position, send_data, send_length, &err);
+
+    uint64_t f_cap = tox_friend_get_capabilities(tox, friendnumber);
+    dbg(0, "on_file_chunk_request:friend_capabilites=%d\n", (int)f_cap);
+    if ((f_cap & TOX_CAPABILITY_FTV2) != 0)
+    {
+        uint8_t *f_data = calloc(1, send_length + TOX_FILE_ID_LENGTH);
+        if (f_data == NULL)
+        {
+            dbg(0, "tox_file_send_chunk calloc error\n");
+            return;
+        }
+        memcpy((f_data + TOX_FILE_ID_LENGTH), send_data, send_length);
+        memcpy(f_data, ft->file_id, TOX_FILE_ID_LENGTH);
+        tox_file_send_chunk(tox, friendnumber, filenumber, position, f_data, (length + TOX_FILE_ID_LENGTH), &err);
+        free(f_data);
+    }
+    else
+    {
+        tox_file_send_chunk(tox, friendnumber, filenumber, position, send_data, send_length, &err);
+    }
 
     if (err != TOX_ERR_FILE_SEND_CHUNK_OK)
     {
         dbg(0, "tox_file_send_chunk failed in chat callback (error %d)\n", err);
+        return;
     }
 
     ft->position += send_length;
     ft->bps += send_length;
     ft->last_keep_alive = get_unix_time();
-
 }
 
 
@@ -2498,8 +2556,16 @@ void kill_all_file_transfers_friend(Tox *m, uint32_t friendnum)
 
     for (i = 0; i < MAX_FILES; ++i)
     {
-        close_file_transfer(m, &Friends.list[friendlistnum].file_sender[i], TOX_FILE_CONTROL_CANCEL);
-        close_file_transfer(m, &Friends.list[friendlistnum].file_receiver[i], TOX_FILE_CONTROL_CANCEL);
+        struct FileTransfer *ft_send = &Friends.list[friendlistnum].file_sender[i];
+        if (ft_send->file_type != TOX_FILE_KIND_FTV2)
+        {
+            close_file_transfer(m, ft_send, TOX_FILE_CONTROL_CANCEL);
+        }
+        struct FileTransfer *ft_receive = &Friends.list[friendlistnum].file_receiver[i];
+        if (ft_receive->file_type != TOX_FILE_KIND_FTV2)
+        {
+            close_file_transfer(m, ft_receive, TOX_FILE_CONTROL_CANCEL);
+        }
     }
 }
 
