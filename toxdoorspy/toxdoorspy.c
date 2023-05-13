@@ -109,7 +109,7 @@ typedef struct DHT_node {
 
 #define seconds_since_last_mod 1 // how long to wait before we process image files in seconds
 #define MAX_FILES 6 // how many filetransfers to/from 1 friend at the same time?
-#define MAX_RESEND_FILE_BEFORE_ASK 100 // OLD = 6
+#define MAX_RESEND_FILE_BEFORE_ASK 600 // OLD = 6
 #define AUTO_RESEND_SECONDS 60*5 // resend for this much seconds before asking again [5 min]
 #define VIDEO_BUFFER_COUNT 4
 #define DEFAULT_GLOBAL_VID_BITRATE 100 // kb/sec
@@ -798,6 +798,7 @@ void bootstap_nodes(Tox *tox, DHT_node nodes[], int number_of_nodes, int add_as_
         }
     }
 }
+
 void bootstrap(Tox *tox)
 {
     // use these nodes as tcp-relays
@@ -1513,7 +1514,7 @@ static void load_friendlist(Tox *m)
 
 void close_file_transfer(Tox *m, struct FileTransfer *ft, int CTRL)
 {
-    dbg(9, "close_file_transfer:001\n");
+    dbg(9, "close_file_transfer:001:enter\n");
 
     if (!ft)
 	{
@@ -1530,6 +1531,8 @@ void close_file_transfer(Tox *m, struct FileTransfer *ft, int CTRL)
         fclose(ft->file);
 	}
 
+    dbg(9, "close_file_transfer:001:b:friendnum=%d filenum=%d file_type=%d\n", ft->friendnum, ft->filenum, ft->file_type);
+
     if (CTRL >= 0)
 	{
         tox_file_control(m, ft->friendnum, ft->filenum, (TOX_FILE_CONTROL) CTRL, NULL);
@@ -1537,7 +1540,6 @@ void close_file_transfer(Tox *m, struct FileTransfer *ft, int CTRL)
 
     memset(ft, 0, sizeof(struct FileTransfer));
 	ft->state = FILE_TRANSFER_INACTIVE; // == 0
-
 }
 
 int has_reached_max_file_transfer_for_friend(uint32_t num)
